@@ -19,17 +19,7 @@ template <class T>
 class MessageQueue
 {
 public:
-    T receive()
-    {
-        // perform queue modification under the lock
-        std::unique_lock<std::mutex> uLock(_mutex);
-        _cond.wait(uLock, [this] { return !_queue.empty(); }); // pass unique lock to condition variable
-        // remove last vector element from queue
-        T msg = std::move(_queue.back());
-        _queue.pop_back();
-        return msg; // will not be copied due to return value optimization (RVO) in C++
-    }
-
+    T receive();
     void send(T &&msg);
 
 private:
