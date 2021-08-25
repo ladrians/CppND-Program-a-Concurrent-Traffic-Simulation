@@ -35,7 +35,7 @@ enum TrafficLightPhase{
     green = 1
 };
 
-class TrafficLight : public TrafficObject
+class TrafficLight : public TrafficObject, public std::enable_shared_from_this<TrafficLight>
 {
 public:
     // constructor / desctructor
@@ -43,6 +43,7 @@ public:
 
     // getters / setters
     TrafficLightPhase getCurrentPhase();
+    int getCycleDuration();
 
     // typical behaviour methods
     void waitForGreen();
