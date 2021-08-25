@@ -21,7 +21,8 @@ void MessageQueue<T>::send(T &&msg)
     // FP.4a : The method send should use the mechanisms std::lock_guard<std::mutex> 
     // as well as _condition.notify_one() to add a new message to the queue and afterwards send a notification.
     std::lock_guard<std::mutex> uLock(_mutex);
-    _queue.push_back(std::move(msg));
+    _queue.clear();
+    _queue.emplace_back(std::move(msg));
     _cond.notify_one();
 }
 
@@ -37,7 +38,6 @@ void TrafficLight::waitForGreen()
     // Once it receives TrafficLightPhase::green, the method returns.
     while(true)
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
         if(_queue.receive() == TrafficLightPhase::green)
             return;
     }
@@ -65,18 +65,18 @@ void TrafficLight::cycleThroughPhases()
     // Also, the while-loop should use std::this_thread::sleep_for to wait 1ms between two cycles. 
     int cycle_duration = getCycleDuration();
     auto now = std::chrono::system_clock::now();
+    long last_update = 0;
     while(true)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        long last_update = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - now).count();
+        last_update = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - now).count();
         if(last_update > cycle_duration)
         {
-            std::unique_lock<std::mutex> current_phase_lock(_mutex);
             _currentPhase = (_currentPhase == TrafficLightPhase::red?_currentPhase = TrafficLightPhase::green : _currentPhase = TrafficLightPhase::red);
             _queue.send(std::move(_currentPhase));
             now = std::chrono::system_clock::now();
             cycle_duration = getCycleDuration();
-            _condition.notify_all();
+            _condition.notify_one();
         }
     }
 }
