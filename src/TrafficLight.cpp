@@ -45,8 +45,8 @@ void TrafficLight::waitForGreen()
 
 TrafficLightPhase TrafficLight::getCurrentPhase()
 {
-    std::unique_lock<std::mutex> current_phase_lock(_mutex);
-    _condition.wait(current_phase_lock);
+    //std::unique_lock<std::mutex> current_phase_lock(_mutex);
+    //_condition.wait(current_phase_lock);
     return _currentPhase;
 }
 
@@ -84,5 +84,5 @@ void TrafficLight::cycleThroughPhases()
 int TrafficLight::getCycleDuration()
 {
     // The cycle duration should be a random value between 4 and 6 seconds.
-    return 4000 + rand() % 2;
+    return 4000 + rand() % 2 * 1000;
 }
