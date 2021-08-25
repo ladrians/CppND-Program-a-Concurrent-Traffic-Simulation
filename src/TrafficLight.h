@@ -30,16 +30,8 @@ public:
         return msg; // will not be copied due to return value optimization (RVO) in C++
     }
 
-    void send(T &&msg)
-    {
-        // simulate some work
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        // perform vector modification under the lock
-        std::lock_guard<std::mutex> uLock(_mutex);
-        // add vector to queue
-        _queue.push_back(std::move(msg));
-        _cond.notify_one(); // notify client after pushing new Vehicle into vector
-    }
+    void send(T &&msg);
+
 private:
     std::mutex _mutex;
     std::condition_variable _cond;
@@ -82,6 +74,7 @@ private:
     TrafficLightPhase _currentPhase;
     std::condition_variable _condition;
     std::mutex _mutex;
+    MessageQueue<TrafficLightPhase> _queue;
 };
 
 #endif
